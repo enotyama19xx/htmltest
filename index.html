@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js Sigma Bond Representation</title>
+    <title>3D Electrostatic Potential</title>
     <style>
         body { margin: 0; display: flex; flex-direction: column; align-items: center; }
         #canvas-container { width: 100%; height: 60vh; }
@@ -14,9 +14,8 @@
 <body>
     <div id="canvas-container"></div>
     <div id="description">
-        <h1>Three.js Sigma Bond Representation</h1>
-        <p>このページでは、Three.jsを使用して化学のσ結合を表現した3D球体を表示しています。2つの球体はσ結合のように配置されています。球体はマウスでドラッグすることで回転させることができます。また、スクロールホイールを使用してズームインおよびズームアウトすることも可能です。</p>
-        <p>Three.jsのOrbitControlsを使用して、ユーザーが直感的に3Dオブジェクトを操作できるようにしています。これにより、3D空間内での視点の移動やズームが簡単に行えます。</p>
+        <h1>3D Electrostatic Potential</h1>
+        <p>このページでは、Two.jsを使用して2つの点電荷（正と負）による静電ポテンシャルを3Dで描画しています。</p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -33,19 +32,46 @@
         renderer.setSize(window.innerWidth, window.innerHeight * 0.6);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // 球体のジオメトリとマテリアルを作成
-        const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0x0077ff, wireframe: true });
+        // 点電荷の位置と強度
+        const charge1 = { position: new THREE.Vector3(-1, 0, 0), charge: 1 };
+        const charge2 = { position: new THREE.Vector3(1, 0, 0), charge: -1 };
 
-        // 1つ目の球体を作成し、シーンに追加
-        const sphere1 = new THREE.Mesh(geometry, material);
-        sphere1.position.set(1.5, 0, 0); // x軸に1.5単位移動
-        scene.add(sphere1);
+        // グリッドサイズと分割数
+        const size = 4;
+        const divisions = 50;
 
-        // 2つ目の球体を作成し、シーンに追加
-        const sphere2 = new THREE.Mesh(geometry, material);
-        sphere2.position.set(-1.5, 0, 0); // x軸に-1.5単位移動
-        scene.add(sphere2);
+        // ポテンシャルを計算する関数
+        function calculatePotential(x, y, z) {
+            const k = 1; // クーロン定数 (単位を簡略化)
+            const r1 = Math.sqrt((x - charge1.position.x) ** 2 + (y - charge1.position.y) ** 2 + (z - charge1.position.z) ** 2);
+            const r2 = Math.sqrt((x - charge2.position.x) ** 2 + (y - charge2.position.y) ** 2 + (z - charge2.position.z) ** 2);
+            const potential1 = charge1.charge / r1;
+            const potential2 = charge2.charge / r2;
+            return k * (potential1 + potential2);
+        }
+
+        // ジオメトリを作成
+        const geometry = new THREE.PlaneGeometry(size, size, divisions, divisions);
+        const positionAttribute = geometry.attributes.position;
+        const vertex = new THREE.Vector3();
+
+        for (let i = 0; i < positionAttribute.count; i++) {
+            vertex.fromBufferAttribute(positionAttribute, i);
+            const potential = calculatePotential(vertex.x, vertex.y, 0);
+            vertex.z = potential; // ポテンシャルをZ座標に設定
+            positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
+        }
+
+        geometry.computeVertexNormals();
+
+        // メテリアルを作成
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+
+        // メッシュを作成
+        const mesh = new THREE.Mesh(geometry, material);
+
+        // メッシュをシーンに追加
+        scene.add(mesh);
 
         // OrbitControlsを設定
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -75,4 +101,3 @@
     </script>
 </body>
 </html>
-``
