@@ -25,3 +25,15 @@
     - 図はPPTかjavascriptの一部をキャプチャしてもよい。
 
 ### 砂場
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL Circuit Simulation</title>
+</head>
+<body>
+    <h1>RL Circuit Simulation</h1>
+    <iframe src="https://www.falstad.com/circuit/circuitjs.html?cct=$+1+0.000005+10.20027730826997+50+5+43%0As+384+80+448+80+0+0+false%0Aw+176+80+176+352+0%0Av+448+352+448+80+0+0+40+5+0+0+0.5%0Ar+384+352+448+352+0+1000%0Aw+176+352+384+352+0%0A162+384+80+176+80+1+2.1024259+1+0+0+0.01%0A" width="100%" height="600px"></iframe>
+</body>
+</html>
